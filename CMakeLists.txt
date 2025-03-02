@@ -36,6 +36,8 @@ set(APP_SOURCES
 qt_add_executable(${PROJECT_NAME}
     ${APP_SOURCES}
     barcodemanager.h barcodemanager.cpp
+    generatedimageprovider.h generatedimageprovider.cpp
+    imageprovider.h imageprovider.cpp
 )
 
 
