@@ -5,9 +5,13 @@
 #include "zxing-cpp/core/src/DecodeHints.h"
 #include "zxing-cpp/core/src/BarcodeFormat.h"
 #include <zxing-cpp/core/src/BitMatrix.h>
-#include <zxing-cpp/core/src/GlobalHistogramBinarizer.h>
 #include <zxing-cpp/core/src/BinaryBitmap.h>
 #include "zxing-cpp/core/src/oned/ODCode128Reader.h"
+
+#include "zxing-cpp/core/src/BinaryBitmap.h"
+#include "zxing-cpp/core/src/GlobalHistogramBinarizer.h"
+#include "zxing-cpp/core/src/HybridBinarizer.h"
+
 #include <QDebug>
 #include <QPainter>
 #include <QDir>
@@ -238,9 +242,7 @@ void BarcodeManager::setFlashEnabled(bool enabled)
 
 ZXing::Result BarcodeManager::decodeImage(const QImage &image)
 {
-    //ZXing will handle converting to grayscale internally
-
-    //convert to ZXing imageView
+    // Convert to ZXing imageView
     ZXing::ImageView imageView(
         image.bits(),
         image.width(),
@@ -249,9 +251,11 @@ ZXing::Result BarcodeManager::decodeImage(const QImage &image)
         image.bytesPerLine()
         );
 
-    ZXing::GlobalHistogramBinarizer binarizer(imageView);
-    ZXing::BinaryBitmap bitmap(binarizer);
+    // Create a BinaryBitmap using one of ZXing's binarizers
+    // GlobalHistogramBinarizer is one option, HybridBinarizer is another
+    auto binarizer = std::make_shared<ZXing::GlobalHistogramBinarizer>(imageView);
+    auto binImage = std::make_shared<ZXing::BinaryBitmap>(binarizer);
 
-
-    return m_reader->read(bitmap);
+    // Now pass the BinaryBitmap to the reader
+    return m_reader->read(*binImage);
 }
